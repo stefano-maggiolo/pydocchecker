@@ -23,10 +23,13 @@ import os
 import sys
 import unittest
 
+import pydocchecker
+
 
 _TESTS = [
     "success",
     "none_allowed",
+    "missing",
     ]
 
 
@@ -38,6 +41,7 @@ class PydocCheckerTests(unittest.TestCase):
         assert 0 == os.system(os.path.join(".", "testsuite", filename))
 
 
+# Add all tests.
 for test in _TESTS:
     setattr(PydocCheckerTests,
             "test_%s" % test,
@@ -45,13 +49,44 @@ for test in _TESTS:
 
 
 def suite():
+    """Create the testsuite comprising all the tests."""
     ret = unittest.TestSuite()
     ret.addTest(unittest.makeSuite(PydocCheckerTests))
     return ret
 
 
 def main():
+    """Run all the tests."""
     return unittest.TextTestRunner().run(suite())
+
+
+def my_warn(_):
+    """Custom implementation of warn() for testing."""
+    if not hasattr(assert_warnings, "raised_warns"):
+        assert_warnings.raised_warns = 0
+    assert_warnings.raised_warns += 1
+
+
+def assert_warnings(expected):
+    """Assert that there has been the right amount of warnings.
+
+    expected (int): the expected number of warnings from the last call
+        to assert_warnings.
+
+    """
+    if not hasattr(assert_warnings, "found_warns"):
+        assert_warnings.found_warns = 0
+    found_now = assert_warnings.raised_warns - assert_warnings.found_warns
+    assert expected == found_now, \
+        "Expected %d warnings, %d found." % (expected, found_now)
+    assert_warnings.found_warns = assert_warnings.raised_warns
+
+
+# Substitute the warning implementation with a custom one recording
+# the number of warnings issued. We need to do so because warnings are
+# silently ignored if more arrive from the same code location, but we
+# need to catch them all.
+pydocchecker.warn = my_warn
 
 
 if __name__ == "__main__":

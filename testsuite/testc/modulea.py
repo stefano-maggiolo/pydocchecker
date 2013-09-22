@@ -21,14 +21,6 @@
 
 
 def foo(a, b):
-    """foo
-
-    a (testa.modulea.ClassA): a ClassA.
-    b (int): a int.
-
-    return (testa.modulea.ClassA): a.
-
-    """
     if b == 0:
         return a
     else:
@@ -39,10 +31,7 @@ class ClassA(object):
     def bar(self, a, b):
         """bar
 
-        a (testa.modulea.ClassA): a ClassA.
         b (int): a int.
-
-        return (testa.modulea.ClassA): a.
 
         """
         if b == 0:

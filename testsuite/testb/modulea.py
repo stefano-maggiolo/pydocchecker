@@ -19,6 +19,7 @@
 
 """Test instance."""
 
+
 def foo(a, b):
     """foo
 

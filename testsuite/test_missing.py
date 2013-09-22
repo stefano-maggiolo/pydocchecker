@@ -17,30 +17,41 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Tests for none_always_valid."""
+"""Tests for the usual behavior."""
 
 from __future__ import absolute_import
 
 import sys
 
 import testsuite.testa.modulea
+import testsuite.testc.modulea
 
 from testsuite.test_all import assert_warnings, pydocchecker
 
 
 def main():
-    instance_a = testsuite.testa.modulea.ClassA()
+    # Warning for missing pydoc and missing argument type when
+    # patching the module.
+    assert_warnings(2)
 
-    # No warnings here, because None is ok.
+    instance_a = testsuite.testa.modulea.ClassA()
+    instance_c = testsuite.testc.modulea.ClassA()
+
+    # No warnings here.
     testsuite.testa.modulea.foo(instance_a, 0)
     instance_a.bar(instance_a, 0)
-    testsuite.testa.modulea.foo(None, 0)
-    instance_a.bar(None, 0)
+    assert_warnings(0)
+
+    # No further warning for missing pydoc or type information.
+    testsuite.testc.modulea.foo(instance_c, 0)
+    instance_c.bar(instance_c, 0)
     assert_warnings(0)
 
     return 0
 
 
 if __name__ == "__main__":
-    pydocchecker.check_all(["testsuite"], none_always_valid=True, debug=True)
+    pydocchecker.check_all(["testsuite"],
+                           complain_for_missing_pydoc=True,
+                           debug=True)
     sys.exit(main())

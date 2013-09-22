@@ -25,60 +25,59 @@ import sys
 
 import testsuite.testa.modulea
 import testsuite.testb.modulea
+import testsuite.testc.modulea
 
-
-n_warns = 0  # pylint: disable=C0103
+from testsuite.test_all import assert_warnings, pydocchecker
 
 
 def main():
     instance_a = testsuite.testa.modulea.ClassA()
     instance_b = testsuite.testb.modulea.ClassA()
+    instance_c = testsuite.testc.modulea.ClassA()
 
     # No warnings here.
     testsuite.testa.modulea.foo(instance_a, 0)
     testsuite.testb.modulea.foo(instance_b, 0)
     instance_a.bar(instance_a, 0)
     instance_b.bar(instance_b, 0)
-    assert n_warns == 0
+    assert_warnings(0)
 
     # Wrong first parameter and return value.
     testsuite.testa.modulea.foo(instance_b, 0)
-    assert n_warns == 2
+    assert_warnings(2)
 
     # Wrong first parameter and return value.
     testsuite.testb.modulea.foo(instance_a, 0)
-    assert n_warns == 4
+    assert_warnings(2)
 
     # Wrong first parameter and return value.
     instance_a.bar(instance_b, 0)
-    assert n_warns == 6
+    assert_warnings(2)
 
     # Wrong first parameter and return value.
     instance_b.bar(instance_a, 0)
-    assert n_warns == 8
+    assert_warnings(2)
 
     # Wrong second parameter and return value.
     instance_a.bar(instance_a, "0")
-    assert n_warns == 10
+    assert_warnings(2)
 
     # Wrong first parameter and return value.
     instance_a.bar(None, 0)
-    assert n_warns == 12
+    assert_warnings(2)
 
     # Wrong return value.
     instance_a.bar(instance_a, 1)
-    assert n_warns == 13
+    assert_warnings(1)
+
+    # No warnings for missing pydoc or type information.
+    instance_c.bar(instance_c, 0)
+    testsuite.testc.foo(instance_c, 0)
+    assert_warnings(0)
 
     return 0
 
 
 if __name__ == "__main__":
-    import pydocchecker
     pydocchecker.check_all(["testsuite"], debug=True)
-
-    def my_warn(_):
-        global n_warns
-        n_warns += 1
-    pydocchecker.warn = my_warn
-
     sys.exit(main())
