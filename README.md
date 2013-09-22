@@ -188,3 +188,8 @@ TODOs
 
 - Check for exceptions, making sure that a warning is issued only if
   at least one type annotation is found in the pydoc.
+
+- If a type is not found, and there is not a default argument for that
+  type, postpone the error to when the function is called, as it might
+  just be that the type is not imported (and the function is never
+  called).
