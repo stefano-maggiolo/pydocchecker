@@ -46,4 +46,5 @@ setup(name="pydocchecker",
           "License :: OSI Approved :: "
           "GNU General Public License v3 (GPLv3)",
           ],
+      test_suite="testsuite.test_all.suite",
       )
