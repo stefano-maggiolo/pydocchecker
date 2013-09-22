@@ -47,8 +47,10 @@ function raised, that the exception was expected.
 In addition to this, it also checks the default argument values, like
 ```None``` for ```default_value``` in the example.
 
-To enable Pydoc Checker, you just need to call ```check_all()``` at
-the beginning of your program.
+To enable Pydoc Checker, you just need to call ```check_all(pkgs)```
+at the beginning of your program, where pkgs is a list of the
+(top-level) packages you want to check. Subpackages will be checked
+too.
 
 ```python
 #!/usr/bin/env python
@@ -59,7 +61,7 @@ from myprogram import run
 
 if __name__ == "__main__":
     import pydocchecker
-    pydocchecker.check_all()
+    pydocchecker.check_all(["my_package"])
     main()
 ```
 
@@ -140,7 +142,7 @@ streamed to ```/tmp/q```.
 Is it configurable?
 -------------------
 
-```check_all``` accepts these arguments.
+```check_all``` accepts these optional arguments.
 
 - ```none_always_valid``` (boolean, default False): whether to
   consider ```None``` an instance of any type, instead then just of
