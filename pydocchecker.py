@@ -49,7 +49,7 @@ TYPES = {
 # Configuration, see check_all() for details.
 NONE_ALWAYS_VALID = False
 COMPLAIN_FOR_MISSING_PYDOC = False
-DEBUG = False
+DEBUG = 0
 
 
 BRACKETS = {
@@ -60,13 +60,20 @@ BRACKETS = {
     }
 
 
-def _log(msg):
+def _log(msg, level=5):
     """Log msg with q, if debug is enabled.
 
     msg (unicode): the message to log
 
+    level (int): the minimum level DEBUG needs to be set in order for
+        this message to be logged. Levels are so organized: do not log
+        anything (0); log the same message that are issued as warnings
+        (1); additional info in case of warnings (2); not used (3);
+        log missing pydoc or type information (4); log all patched
+        functions and found types (5).
+
     """
-    if DEBUG:
+    if DEBUG >= level:
         q / msg
 
 
@@ -77,7 +84,7 @@ def _warn(msg):
 
     """
     warn(msg)
-    _log(msg)
+    _log(msg, level=1)
 
 
 def _describe_function(func):
@@ -329,7 +336,7 @@ def _check_type(fname, type_, value, name):
         msg3 = "Expected type: `%r'." % type_
         _warn("%s\n%s\n%s" % (msg1, msg2, msg3))
         for line in traceback.extract_stack():
-            _log(line)
+            _log(line, level=2)
 
 
 def _extract_expected_type(doc, name):
@@ -361,13 +368,16 @@ def _decorate_function(func):
 
     """
     fname = _describe_function(func)
-    _log("Patching function `%s'." % fname)
+    _log("Patching function `%s'." % fname, level=5)
 
     # If there is no pydoc, then there is nothing to do.
     doc = inspect.getdoc(func)
     if doc is None:
+        msg = "Missing pydoc for `%s'." % fname
         if COMPLAIN_FOR_MISSING_PYDOC:
-            _warn("Missing pydoc for `%s'." % fname)
+            _warn(msg)
+        else:
+            _log(msg, level=4)
         return func
 
     # Retrieve arguments data.
@@ -388,9 +398,12 @@ def _decorate_function(func):
         # If the type is not specified (and this is not the first
         # argument of a method), maybe warn.
         if type_ is None and (name != "self" or i != 0):
+            msg = "Missing type information for argument `%s' in `%s'." % (
+                name, fname)
             if COMPLAIN_FOR_MISSING_PYDOC:
-                _warn("Missing type information for argument `%s' in `%s'." %
-                      (name, fname))
+                _warn(msg)
+            else:
+                _log(msg, level=4)
         arg_types.append(type_)
         # If the argument has a default value, check its type.
         if i - displacement >= 0:
@@ -424,7 +437,7 @@ def _decorate_class(cls):
     return (type): the class with the method decorated.
 
     """
-    _log("Patching class %s." % cls.__name__)
+    _log("Patching class %s." % cls.__name__, level=5)
     for key, value in cls.__dict__.iteritems():
         if callable(value):
             setattr(cls, key, _decorate_function(getattr(cls, key)))
@@ -494,14 +507,14 @@ def _install_test_types():
                     complete_name = ".".join(name_parts[i:] + [key])
                     if complete_name not in TYPES:
                         TYPES[complete_name] = []
-                    _log("Adding type %s." % complete_name)
+                    _log("Adding type %s." % complete_name, level=5)
                     TYPES[complete_name].append(value)
 
 
 def check_all(packages,
               none_always_valid=False,
               complain_for_missing_pydoc=False,
-              debug=False):
+              debug=0):
     """Install the checker on all cms hierarchy.
 
     To be called at the main, it adds to the known types all cms
@@ -516,9 +529,8 @@ def check_all(packages,
         None values.
     complain_for_missing_pydoc (bool): whether to log a warning also
         for missing pydocs, or missing type descriptions.
-    debug (bool): if True, a lot of information will be printed, about
-        what types have been found, what functions have been patched, and
-        what checks are performed.
+    debug (int): the higher, the more log lines will be printed; valid
+        values are between 0 and 5.
 
     """
     global NONE_ALWAYS_VALID, COMPLAIN_FOR_MISSING_PYDOC, DEBUG

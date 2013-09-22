@@ -153,9 +153,8 @@ Is it configurable?
   to log a warning also for missing pydocs, or missing type
   descriptions.
 
-- ```debug``` (boolean, default False): if True, a lot of information
-  will be printed, about what types have been found, what functions
-  have been patched, and what checks are performed.
+- ```debug``` (integer, default 0): the higher, the more log lines
+  will be printed in ```/tmp/q```; valid values are between 0 and 5.
 
 
 How do I install it?

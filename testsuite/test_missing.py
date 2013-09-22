@@ -53,5 +53,5 @@ def main():
 if __name__ == "__main__":
     pydocchecker.check_all(["testsuite"],
                            complain_for_missing_pydoc=True,
-                           debug=True)
+                           debug=5)
     sys.exit(main())

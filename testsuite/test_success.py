@@ -79,5 +79,5 @@ def main():
 
 
 if __name__ == "__main__":
-    pydocchecker.check_all(["testsuite"], debug=True)
+    pydocchecker.check_all(["testsuite"], debug=5)
     sys.exit(main())
