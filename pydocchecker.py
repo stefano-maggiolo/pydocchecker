@@ -354,6 +354,8 @@ def _decorate_function(func):
     # If there is no pydoc, then there is nothing to do.
     doc = inspect.getdoc(func)
     if doc is None:
+        if COMPLAIN_FOR_MISSING_PYDOC:
+            _warn("Missing pydoc for `%s'." % fname)
         return func
 
     # Retrieve arguments data.
@@ -371,6 +373,12 @@ def _decorate_function(func):
     for i, name in enumerate(arg_names):
         # Try to get the expected type from the pydoc.
         type_ = _extract_expected_type(doc, name)
+        # If the type is not specified (and this is not the first
+        # argument of a method), maybe warn.
+        if type_ is None and (name != "self" or i != 0):
+            if COMPLAIN_FOR_MISSING_PYDOC:
+                _warn("Missing type information for argument `%s' in `%s'." %
+                      (name, fname))
         arg_types.append(type_)
         # If the argument has a default value, check its type.
         if i - displacement >= 0:
