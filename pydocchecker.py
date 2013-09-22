@@ -60,6 +60,26 @@ BRACKETS = {
     }
 
 
+def _log(msg):
+    """Log msg with q, if debug is enabled.
+
+    msg (unicode): the message to log
+
+    """
+    if DEBUG:
+        q / msg
+
+
+def _warn(msg):
+    """Issue a warning and if necessary, log.
+
+    msg (unicode): the string to log.
+
+    """
+    warn(msg)
+    _log(msg)
+
+
 def _describe_function(func):
     """Return the name of the function or method.
 
@@ -288,10 +308,10 @@ def _check_type(fname, type_, value, name):
 
     If the types do not match, a warning is logged.
 
-    fname (str): the name of the function/method.
-    type_ (str): the name of the type.
+    fname (unicode): the name of the function/method.
+    type_ (unicode): the name of the type.
     value (object): the value to check.
-    name (str): the name of the argument to check.
+    name (unicode): the name of the argument to check.
 
     """
     if type_ is None:
@@ -300,33 +320,26 @@ def _check_type(fname, type_, value, name):
 
     checker = _check(type_)
     if checker is None:
-        msg = "Not found: %s in %s" % (type_, fname)
-        warn(msg)
-        if DEBUG:
-            q / msg
+        _warn("Not found: %s in %s" % (type_, fname))
     elif not checker(value):
         msg1 = "`%s' received value with wrong type for argument `%r'." % (
             fname, name)
         msg2 = "Value passed: `%r', of type `%r'." % (
             value, value.__class__.__name__)
         msg3 = "Expected type: `%r'." % type_
-        warn("%s\n%s\n%s" % (msg1, msg2, msg3))
-        if DEBUG:
-            q / msg1
-            q / msg2
-            q / msg3
-            for line in traceback.extract_stack():
-                q / line
+        _warn("%s\n%s\n%s" % (msg1, msg2, msg3))
+        for line in traceback.extract_stack():
+            _log(line)
 
 
 def _extract_expected_type(doc, name):
     """Try to extract the extected type of an argument from the pydoc.
 
-    doc__ (str): the pydoc of the function.
-    name__ (str): the name of an argument.
+    doc__ (unicode): the pydoc of the function.
+    name__ (unicode): the name of an argument.
 
-    return (str): the name of the expected type of the argument, or
-        None if could not extract.
+    return (unicode): the name of the expected type of the argument,
+        or None if could not extract.
 
     """
     type_ = None
@@ -348,8 +361,7 @@ def _decorate_function(func):
 
     """
     fname = _describe_function(func)
-    if DEBUG:
-        q / "Patching function %s." % fname
+    _log("Patching function `%s'." % fname)
 
     # If there is no pydoc, then there is nothing to do.
     doc = inspect.getdoc(func)
@@ -412,8 +424,7 @@ def _decorate_class(cls):
     return (type): the class with the method decorated.
 
     """
-    if DEBUG:
-        q / "Patching class %s." % cls.__name__
+    _log("Patching class %s." % cls.__name__)
     for key, value in cls.__dict__.iteritems():
         if callable(value):
             setattr(cls, key, _decorate_function(getattr(cls, key)))
@@ -483,8 +494,7 @@ def _install_test_types():
                     complete_name = ".".join(name_parts[i:] + [key])
                     if complete_name not in TYPES:
                         TYPES[complete_name] = []
-                    if DEBUG:
-                        q / "Adding type %s." % complete_name
+                    _log("Adding type %s." % complete_name)
                     TYPES[complete_name].append(value)
 
 
