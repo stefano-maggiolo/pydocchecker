@@ -141,7 +141,8 @@ def _smart_split(string, char):
     """Split string in correspondence of char, considering brackets.
 
     This functions splits string at char, when it occurres at depth
-    zero, i.e. when it is not inside a bracket.
+    zero, i.e. when it is not inside a bracket. Tokens composed only
+    of whitespaced will not be included in the output.
 
     string (unicode): the string to analyze.
     char (unicode): the char to split at.
@@ -163,9 +164,13 @@ def _smart_split(string, char):
             depth -= 1
         elif cur == char:
             if depth == 0:
-                ret.append(string[prev + 1:idx])
+                to_append = string[prev + 1:idx].strip()
+                if to_append != "":
+                    ret.append(to_append)
                 prev = idx
-    ret.append(string[prev + 1:])
+    to_append = string[prev + 1:].strip()
+    if to_append != "":
+        ret.append(to_append)
     return ret
 
 
