@@ -246,7 +246,7 @@ def _check(type_):
             return check_set
 
         else:  # type_[0] == "{"
-            keyvalues = [keyvalue.split(",", 1)
+            keyvalues = [_smart_split(keyvalue, ":")
                          for keyvalue in _smart_split(type_[1:-1], ",")]
             # Heuristic: if there is only one key-value, we assume it
             # is of the form "{type_of_key: type_of_value}";
@@ -258,7 +258,7 @@ def _check(type_):
                     """Check that obj is a valid dict."""
                     if obj is None:
                         return NONE_ALWAYS_VALID
-                    if not isinstance(obj, dict) or obj:
+                    if not isinstance(obj, dict):
                         return False
                     key_type, value_type = keyvalues[0]
                     for key, value in obj:
@@ -274,7 +274,7 @@ def _check(type_):
                     """Check that obj is a valid dict."""
                     if obj is None:
                         return NONE_ALWAYS_VALID
-                    if not isinstance(obj, dict) or obj:
+                    if not isinstance(obj, dict):
                         return False
                     for key, value in keyvalues:
                         if key not in obj:
@@ -303,7 +303,7 @@ def _check(type_):
             except Exception:
                 # Should be just NameError, but we try to be more
                 # conservative given the eval.
-                return None
+                return lambda obj: True
             else:
                 # eval succeeded, testing with resulting type.
                 return lambda obj: (obj is None and NONE_ALWAYS_VALID) \
