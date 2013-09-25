@@ -258,13 +258,15 @@ def _check(type_):
             # otherwise, of the form "{name_of_key: type_of_value,
             # ...}".
             if len(keyvalues) == 1:
-
                 def check_dict(obj):
                     """Check that obj is a valid dict."""
                     if obj is None:
                         return NONE_ALWAYS_VALID
                     if not isinstance(obj, dict):
                         return False
+                    if len(keyvalues[0]) != 2:
+                        _warn("Unable to parse type annotation `%s'." % type_)
+                        return True
                     key_type, value_type = keyvalues[0]
                     for key, value in obj:
                         if not _check(key_type)(key):
@@ -281,7 +283,12 @@ def _check(type_):
                         return NONE_ALWAYS_VALID
                     if not isinstance(obj, dict):
                         return False
-                    for key, value in keyvalues:
+                    for keyvalue in keyvalues:
+                        if len(keyvalue) != 2:
+                            _warn("Unable to parse type annotation `%s'." %
+                                  type_)
+                            continue
+                        key, value = keyvalue
                         if key not in obj:
                             return False
                         if not _check(value)(obj[key]):
