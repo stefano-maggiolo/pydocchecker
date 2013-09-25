@@ -348,7 +348,9 @@ def _check_type(fname, type_, value, name):
         msg3 = "Expected type: `%r'." % type_
         _warn("%s\n%s\n%s" % (msg1, msg2, msg3))
         for line in traceback.extract_stack():
-            _log(line, level=2)
+            if "pydocchecker" not in line:
+                # Avoid logging lines coming from Pydoc Checker.
+                _log(line, level=2)
 
 
 def _extract_expected_type(doc, name):
