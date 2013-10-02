@@ -26,26 +26,24 @@ import unittest
 import pydocchecker
 
 
-_TESTS = [
-    "success",
-    "none_allowed",
-    "missing",
-    ]
-
-
 class PydocCheckerTests(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_success(self):
+        self._test("test_success.py")
+
+    def test_types(self):
+        self._test("test_types.py")
+
+    def test_none_allowed(self):
+        self._test("test_none_allowed.py")
+
+    def test_missing(self):
+        self._test("test_missing.py")
+
     def _test(self, filename):
-        assert 0 == os.system(os.path.join(".", "testsuite", filename))
-
-
-# Add all tests.
-for test in _TESTS:
-    setattr(PydocCheckerTests,
-            "test_%s" % test,
-            lambda self: self._test("test_%s.py" % test))
+        assert 0== os.system(os.path.join(".", "testsuite", filename))
 
 
 def suite():
