@@ -72,7 +72,7 @@ def main():
 
     # No warnings for missing pydoc or type information.
     instance_c.bar(instance_c, 0)
-    testsuite.testc.foo(instance_c, 0)
+    testsuite.testc.modulea.foo(instance_c, 0)
     assert_warnings(0)
 
     return 0

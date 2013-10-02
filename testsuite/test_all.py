@@ -76,6 +76,8 @@ def assert_warnings(expected):
     """
     if not hasattr(assert_warnings, "found_warns"):
         assert_warnings.found_warns = 0
+    if not hasattr(assert_warnings, "raised_warns"):
+        assert_warnings.raised_warns = 0
     found_now = assert_warnings.raised_warns - assert_warnings.found_warns
     assert expected == found_now, \
         "Expected %d warnings, %d found." % (expected, found_now)

@@ -258,6 +258,7 @@ def _check(type_):
             # otherwise, of the form "{name_of_key: type_of_value,
             # ...}".
             if len(keyvalues) == 1:
+
                 def check_dict(obj):
                     """Check that obj is a valid dict."""
                     if obj is None:
@@ -268,7 +269,7 @@ def _check(type_):
                         _warn("Unable to parse type annotation `%s'." % type_)
                         return True
                     key_type, value_type = keyvalues[0]
-                    for key, value in obj:
+                    for key, value in obj.iteritems():
                         if not _check(key_type)(key):
                             return False
                         if not _check(value_type)(value):
@@ -302,10 +303,12 @@ def _check(type_):
 
             def check_known_type(obj):
                 """Check that obj is a valid known type."""
+                if any(isinstance(obj, test_type)
+                       for test_type in TYPES[type_]):
+                    return True
                 if obj is None:
                     return NONE_ALWAYS_VALID
-                return any(isinstance(obj, test_type)
-                           for test_type in TYPES[type_])
+                return False
 
             return check_known_type
         else:
@@ -318,8 +321,8 @@ def _check(type_):
                 return lambda obj: True
             else:
                 # eval succeeded, testing with resulting type.
-                return lambda obj: (obj is None and NONE_ALWAYS_VALID) \
-                    or isinstance(obj, real_type)
+                return lambda obj: isinstance(obj, real_type) \
+                    or (obj is None and NONE_ALWAYS_VALID)
 
 
 def _check_type(fname, type_, value, name):
