@@ -366,15 +366,17 @@ def _extract_expected_type(doc, name):
         or None if could not extract.
 
     """
-    type_ = None
-    ret = re.search(r"\n\n(.*\n)*%s \(([^:]*)\):" % name, doc)
+    ret = re.search(r"\n *%s (\(.*)" % name, doc)
     if ret is not None:
         try:
-            type_ = ret.groups()[-1]
-        except IndexError:
-            # Cannot decode format.
-            pass
-    return type_
+            end = _find_closing_bracket(ret.groups()[-1], 0)
+        except ValueError:
+            # Unable to parse type.
+            return None
+        else:
+            return ret.groups()[-1][1:end]
+    else:
+        return None
 
 
 def _decorate_function(func):
