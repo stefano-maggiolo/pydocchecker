@@ -174,10 +174,6 @@ TODOs
 - Fallback on the pydoc of the parent class' method if the child does
   not have a pydoc or does not describe some argument.
 
-- Provide configurability for how to log different problems (missing
-  docstring, missing type indication, type indication not recognized,
-  wrong type).
-
 - Unambiguous syntax for the two types of dictionaries.
 
 - Better checking when two classes have the same name. At the moment,
