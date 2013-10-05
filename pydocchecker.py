@@ -534,11 +534,11 @@ def check_all(packages,
               none_always_valid=False,
               complain_for_missing_pydoc=False,
               debug=0):
-    """Install the checker on all cms hierarchy.
+    """Install the checker on all desired packages.
 
-    To be called at the main, it adds to the known types all cms
-    hierarchy, and decorates all methods and functions to check for
-    the passed types.
+    To be called at the main, it adds to the known types all visible
+    types, and decorates all methods and functions with the type
+    check.
 
     packages ([unicode]): the list of packages where to install the
         checkers; all subpackages will be checked too.
