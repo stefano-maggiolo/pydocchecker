@@ -421,6 +421,8 @@ def _decorate_function(func):
         defaults = []
     displacement = len(arg_names) - len(defaults)
 
+    assert '__pydc_patched__' not in func.__dict__
+
     arg_types = []
     for i, name in enumerate(arg_names):
         # Try to get the expected type from the pydoc.
@@ -455,6 +457,9 @@ def _decorate_function(func):
         ret_value = func(*args, **kwargs)
         _check_type(fname, ret_type, ret_value, "__return__")
         return ret_value
+
+    # Set a tracking flag in the new function
+    internal.__pydc_patched__ = True
 
     return internal
 
