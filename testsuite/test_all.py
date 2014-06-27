@@ -42,6 +42,9 @@ class PydocCheckerTests(unittest.TestCase):
     def test_missing(self):
         self._test("test_missing.py")
 
+    def test_importing(self):
+        self._test("test_importing.py")
+
     def _test(self, filename):
         assert 0 == os.system(os.path.join(".", "testsuite", filename))
 
