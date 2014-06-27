@@ -24,6 +24,7 @@
 from __future__ import absolute_import
 
 import inspect
+import io
 import q
 import re
 import sys
@@ -40,7 +41,9 @@ __author__ = "Stefano Maggiolo <s.maggiolo@gmail.com>"
 
 # Resolves custom type names to a list of accepted types.
 TYPES = {
-    "function": [types.FunctionType, types.MethodType],
+    "file": [file, io.IOBase],
+    "function": [lambda t: callable(t),
+                 types.FunctionType, types.MethodType],
     "string": [basestring],
     "None": [types.NoneType],
     }
@@ -303,9 +306,16 @@ def _check(type_):
 
             def check_known_type(obj):
                 """Check that obj is a valid known type."""
-                if any(isinstance(obj, test_type)
-                       for test_type in TYPES[type_]):
-                    return True
+                for equivalent_type in TYPES[type_]:
+                    # An equivalent type is either a proper type or a
+                    # function whose return value on the type to be
+                    # checked is its correctness.
+                    if isinstance(equivalent_type, types.FunctionType):
+                        if equivalent_type(obj):
+                            return True
+                    else:
+                        if isinstance(obj, equivalent_type):
+                            return True
                 if obj is None:
                     return NONE_ALWAYS_VALID
                 return False
@@ -320,6 +330,7 @@ def _check(type_):
                 # conservative given the eval.
                 return lambda obj: True
             else:
+                # TODO: if real_type is not a type, this crashes.
                 # eval succeeded, testing with resulting type.
                 return lambda obj: isinstance(obj, real_type) \
                     or (obj is None and NONE_ALWAYS_VALID)
