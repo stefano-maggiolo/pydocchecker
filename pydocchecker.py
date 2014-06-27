@@ -63,6 +63,11 @@ BRACKETS = {
     }
 
 
+# Map of patched functions (to fix references of those functions
+# imported in other modules).
+_decoration_map = {}
+
+
 def _log(msg, level=5):
     """Log msg with q, if debug is enabled.
 
@@ -458,6 +463,10 @@ def _decorate_function(func):
         _check_type(fname, ret_type, ret_value, "__return__")
         return ret_value
 
+    # Record in the decoration map
+    global _decoration_map
+    _decoration_map[id(func)] = internal
+
     # Set a tracking flag in the new function
     internal.__pydc_patched__ = True
 
@@ -525,6 +534,23 @@ def _decorate_packages(packages):
         module.__dict__.update(to_add)
 
 
+def _fix_references():
+    """Fix references to patched functions in other modules.
+
+    """
+    for name, module in sys.modules.iteritems():
+        if module is None:
+            continue
+        to_add = {}
+        for key, value in module.__dict__.iteritems():
+            if isinstance(value, types.FunctionType) and \
+                    id(value) in _decoration_map:
+                _log("Fixing reference to `%s' in module `%s'." %
+                     (key, module.__name__), level=5)
+                to_add[key] = _decoration_map[id(value)]
+        module.__dict__.update(to_add)
+
+
 def _install_test_types():
     """Add to the known types all modules.
 
@@ -575,3 +601,4 @@ def check_all(packages,
 
     _install_test_types()
     _decorate_packages(packages)
+    _fix_references()
