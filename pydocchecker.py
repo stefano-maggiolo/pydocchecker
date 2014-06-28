@@ -426,7 +426,9 @@ def _decorate_function(func):
         defaults = []
     displacement = len(arg_names) - len(defaults)
 
-    assert '__pydc_patched__' not in func.__dict__
+    if "__pydc_patched__" in func.__dict__:
+        _log("Function already patched: %s" % fname, level=4)
+        return func
 
     arg_types = []
     for i, name in enumerate(arg_names):
