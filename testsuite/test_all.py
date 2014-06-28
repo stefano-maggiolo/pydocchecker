@@ -43,7 +43,7 @@ class PydocCheckerTests(unittest.TestCase):
         self._test("test_missing.py")
 
     def _test(self, filename):
-        assert 0== os.system(os.path.join(".", "testsuite", filename))
+        assert 0 == os.system(os.path.join(".", "testsuite", filename))
 
 
 def suite():
